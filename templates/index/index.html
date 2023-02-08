@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>ffff</title>
+  <script src="https://unpkg.com/vue@next"></script>
+</head>
+
+<body>
+
+  <div id="app"></div>
+</body>
+
+<script>
+  const Counter = {
+    data() {
+      return {
+        counter: 11
+      }
+    },
+    template: `
+    {{ counter }}
+    fff
+    `,
+    mounted() {
+      console.log(`the component is now mounted.`)
+    },
+  }
+
+  Vue.createApp(Counter).mount('#app')
+
+</script>
+
+</html>
