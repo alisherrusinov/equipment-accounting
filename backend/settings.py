@@ -126,7 +126,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = BASE_DIR / '/static_files/'
+STATIC_ROOT = BASE_DIR / 'static_files/'
 
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8080",
