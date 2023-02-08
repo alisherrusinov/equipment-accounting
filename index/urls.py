@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import get_items, save, sort, register, rights
+from .views import get_items, save, sort, register, rights, index
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView)
@@ -12,4 +12,5 @@ urlpatterns = [
     path('list', get_items),
     path('save', save),
     path('sorted', sort),
+    path('', index),
 ]
