@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError
+from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -180,6 +181,6 @@ def excel_export(request):
             for col_num, cell_value in enumerate(row, 1):
                 cell = worksheet.cell(row=row_num, column=col_num)
                 cell.value = cell_value
-    file_name = f'excel_files/export_{datetime.datetime.now()}.xlsx'
+    file_name = settings.BASE_DIR / f'excel_files/export_{datetime.datetime.now()}.xlsx'
     workbook.save(file_name)
     return JsonResponse({'status': 'ok', 'url': file_name})
