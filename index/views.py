@@ -113,7 +113,7 @@ def excel_export(request):
     data = json.loads(request.body.decode("utf-8"))
     left_date = data['left_date']
     right_date = data['right_date']
-    objects = ItemModel.objects.filter(date_in__gte=left_date, date_out__lte=right_date).order_by('date_in')
+    objects = ItemModel.objects.filter(date_in__gte=left_date).order_by('date_in')
 
     workbook = Workbook()
     worksheet = workbook.active
@@ -157,7 +157,7 @@ def excel_export(request):
             cell = worksheet.cell(row=row_num, column=col_num)
             cell.value = cell_value
 
-    objects = ItemModel.objects.filter(date_in__gte=left_date, date_out__lte=right_date).order_by('date_out')
+    objects = ItemModel.objects.filter(date_out__lte=right_date).order_by('date_out')
     for item in objects:
         if (item.date_out <= datetime.datetime.strptime(right_date,
                                                                                                     "%Y-%m-%d").date()):
@@ -180,5 +180,6 @@ def excel_export(request):
             for col_num, cell_value in enumerate(row, 1):
                 cell = worksheet.cell(row=row_num, column=col_num)
                 cell.value = cell_value
-    workbook.save(f'excel_files/export_{datetime.datetime.now()}.xlsx')
-    return JsonResponse({'status': 'ok'})
+    file_name = f'excel_files/export_{datetime.datetime.now()}.xlsx'
+    workbook.save(file_name)
+    return JsonResponse({'status': 'ok', 'url': file_name})

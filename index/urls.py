@@ -1,4 +1,6 @@
 from django.urls import path
+from django.conf.urls.static import static
+from django.conf import settings
 from .views import get_items, save, sort, register, rights, index, add, excel_export
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -16,3 +18,6 @@ urlpatterns = [
     path('range', excel_export),
     path('', index),
 ]
+
+if(settings.DEBUG):
+    urlpatterns+= static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
