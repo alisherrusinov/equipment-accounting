@@ -183,4 +183,4 @@ def excel_export(request):
                 cell.value = cell_value
     file_name = settings.BASE_DIR / f'excel_files/export_{datetime.datetime.now()}.xlsx'
     workbook.save(file_name)
-    return JsonResponse({'status': 'ok', 'url': file_name})
+    return JsonResponse({'status': 'ok', 'url': str(file_name)})
