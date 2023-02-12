@@ -137,6 +137,11 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
 ]
 
+MEDIA_URL = '/excel_files/'
+
+# Path where media is stored
+MEDIA_ROOT = BASE_DIR / 'excel_files'
+
 # allow all requests containing any of the default headers(as in django docs) or content-type header
 CORS_ALLOW_HEADERS = default_headers + (
     'contenttype',

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import get_items, save, sort, register, rights, index
+from .views import get_items, save, sort, register, rights, index, add, excel_export
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView)
@@ -11,6 +11,8 @@ urlpatterns = [
     path('rights', rights),
     path('list', get_items),
     path('save', save),
+    path('add', add),
     path('sorted', sort),
+    path('range', excel_export),
     path('', index),
 ]
