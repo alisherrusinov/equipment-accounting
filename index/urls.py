@@ -1,7 +1,7 @@
 from django.urls import path
 from django.conf.urls.static import static
 from django.conf import settings
-from .views import get_items, save, sort, register, rights, index, add, excel_export
+from .views import get_items, save, sort, register, rights, index, add, excel_export, remove, get_related_items, sort_rel
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView)
@@ -13,8 +13,11 @@ urlpatterns = [
     path('rights', rights),
     path('list', get_items),
     path('save', save),
+    path('remove', remove),
     path('add', add),
     path('sorted', sort),
+    path('sorted_rel', sort_rel),
+    path('related', get_related_items),
     path('range', excel_export),
     path('', index),
 ]

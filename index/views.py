@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError
+from django.core import serializers
 from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -13,7 +14,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from openpyxl import Workbook
 import json, datetime
-from .models import ItemModel
+from .models import ItemModel, ItemRelationModel
 
 
 def index(request):
@@ -52,9 +53,39 @@ def get_items(request):
         answer[element['id']] = element
     print(answer)
     return JsonResponse({'elements': answer})
+@require_http_methods(['POST'])
+@csrf_exempt
+def get_related_items(request):
+    data = json.loads(request.body.decode("utf-8"))
+    related = ItemRelationModel.objects.filter(to_item=ItemModel.objects.get(id=data['id'])).values()
 
+    item_ids = []
+    for element in related:
+        item_ids.append(element['from_item_id'])
+    data = ItemModel.objects.filter(id__in=item_ids).values()
+    return JsonResponse({'elements': list(data)})
 
 @require_http_methods(['POST'])
+@csrf_exempt
+def sort_rel(request):
+    data = json.loads(request.body.decode("utf-8"))
+    sort_by = data['attribute']
+    sort_to = data['sort']
+
+    related = ItemRelationModel.objects.filter(to_item=ItemModel.objects.get(id=data['id'])).values()
+
+    item_ids = []
+    for element in related:
+        item_ids.append(element['from_item_id'])
+
+    if (sort_to == 'DESC'):
+        data = ItemModel.objects.filter(id__in=item_ids).order_by(sort_by).values()
+    else:
+        data = ItemModel.objects.filter(id__in=item_ids).order_by(f'-{sort_by}').values()
+
+    return JsonResponse({'elements': list(data)})
+
+
 @csrf_exempt
 def sort(request):
     data = json.loads(request.body.decode("utf-8"))
@@ -86,6 +117,18 @@ def save(request):
 
 @require_http_methods(['POST'])
 @csrf_exempt
+def remove(request):
+    data = json.loads(request.body.decode("utf-8"))
+    element_id = data['element_id']
+
+    element = ItemModel.objects.get(id=element_id)
+    element.delete()
+
+    return JsonResponse({'status': 'ok'})
+
+
+@require_http_methods(['POST'])
+@csrf_exempt
 def add(request):  # ItemModel.objects.filter(date_in__gte="2023-01-04", date_out__lte="2023-02-15")
     data = json.loads(request.body.decode("utf-8"))
 
@@ -102,6 +145,12 @@ def add(request):  # ItemModel.objects.filter(date_in__gte="2023-01-04", date_ou
     )
     try:
         element.save()
+        if ('relatedItem' in data):
+            relation = ItemRelationModel(
+                from_item=element,
+                to_item=ItemModel.objects.get(id=data['relatedItem'])
+            )
+            relation.save()
     except ValidationError:
         return JsonResponse({'status': 'dateValidationError'})
 
