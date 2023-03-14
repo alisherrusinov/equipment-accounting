@@ -24,6 +24,11 @@ def index(request):
 @csrf_exempt
 @api_view(['GET', 'POST'])
 def register(request):
+    '''
+    Регистрация пользователя
+    :param request:
+    :return:
+    '''
     body = json.loads(request.body)
     if body['password'] == body['confirm']:
         try:
@@ -39,6 +44,11 @@ def register(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def rights(request):
+    '''
+    Проверка возможности редактирования элементов пользователем
+    :param request:
+    :return: Json { 'edit_group': bool/false }
+    '''
     is_editable = request.user.groups.filter(name='Редактирование').exists()
     print(is_editable)
     return JsonResponse({'edit_group': is_editable})
@@ -47,15 +57,27 @@ def rights(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_items(request):
+    '''
+    Список элементов
+    :param request:
+    :return: Json { 'elements': array }
+    '''
     data = ItemModel.objects.all().values()
     answer = {}
     for element in data:
         answer[element['id']] = element
     print(answer)
     return JsonResponse({'elements': answer})
+
+
 @require_http_methods(['POST'])
 @csrf_exempt
 def get_related_items(request):
+    '''
+    Список связанных элементов
+    :param request:
+    :return: Json { 'elements': array }
+    '''
     data = json.loads(request.body.decode("utf-8"))
     related = ItemRelationModel.objects.filter(to_item=ItemModel.objects.get(id=data['id'])).values()
 
@@ -65,9 +87,15 @@ def get_related_items(request):
     data = ItemModel.objects.filter(id__in=item_ids).values()
     return JsonResponse({'elements': list(data)})
 
+
 @require_http_methods(['POST'])
 @csrf_exempt
 def sort_rel(request):
+    '''
+    Сортировка связанной таблицы по столбцу
+    :param request: attribute - атрибут(название столбца), sort - направление сортировки(desc, asc)
+    :return: Json { 'elements': array }
+    '''
     data = json.loads(request.body.decode("utf-8"))
     sort_by = data['attribute']
     sort_to = data['sort']
@@ -88,6 +116,11 @@ def sort_rel(request):
 
 @csrf_exempt
 def sort(request):
+    '''
+    Сортировка основной таблицы по столбцу
+    :param request: attribute - атрибут(название столбца), sort - направление сортировки(desc, asc)
+    :return: Json { 'elements': array }
+    '''
     data = json.loads(request.body.decode("utf-8"))
     sort_by = data['attribute']
     sort_to = data['sort']
@@ -102,6 +135,11 @@ def sort(request):
 @require_http_methods(['POST'])
 @csrf_exempt
 def save(request):
+    '''
+    Сохранить изменения в элементе
+    :param request: element_id - айди элемента, attribute - название атрибута(столбца), value - значение
+    :return:
+    '''
     data = json.loads(request.body.decode("utf-8"))
     element_id = data['element_id']
     attr_name = data['attribute']
@@ -118,6 +156,11 @@ def save(request):
 @require_http_methods(['POST'])
 @csrf_exempt
 def remove(request):
+    '''
+    Удалить элемент
+    :param request: element_id - айди элемента
+    :return: status
+    '''
     data = json.loads(request.body.decode("utf-8"))
     element_id = data['element_id']
 
@@ -130,6 +173,11 @@ def remove(request):
 @require_http_methods(['POST'])
 @csrf_exempt
 def add(request):  # ItemModel.objects.filter(date_in__gte="2023-01-04", date_out__lte="2023-02-15")
+    '''
+    Добавить элемент
+    :param request: все атрибуты элемента, relatedItem - опционально, айди элемента, к которому нужно привязать добавляемый элемент
+    :return:
+    '''
     data = json.loads(request.body.decode("utf-8"))
 
     element = ItemModel(
@@ -160,6 +208,11 @@ def add(request):  # ItemModel.objects.filter(date_in__gte="2023-01-04", date_ou
 @require_http_methods(['POST'])
 @csrf_exempt
 def excel_export(request):
+    '''
+    Экспорт отчета в эксель
+    :param request: left_date - дата от, right_date - дата до
+    :return: url - ссылка на файл
+    '''
     data = json.loads(request.body.decode("utf-8"))
     left_date = data['left_date']
     right_date = data['right_date']
@@ -210,7 +263,7 @@ def excel_export(request):
     objects = ItemModel.objects.filter(date_out__lte=right_date).order_by('date_out')
     for item in objects:
         if (item.date_out <= datetime.datetime.strptime(right_date,
-                                                                                                    "%Y-%m-%d").date()):
+                                                        "%Y-%m-%d").date()):
             row_num += 1
 
             row = [
